@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#f472b6">
+    <title>Калькулятор КБЖУ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/400.css');
+        @import url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/600.css');
+        @import url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/700.css');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdf2f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #f9a8d4 0%, #ec4899 100%);
+        }
+        
+        .macro-bar {
+            height: 16px;
+            border-radius: 9999px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .macro-protein { background-color: #f472b6; }
+        .macro-fat { background-color: #c084fc; }
+        .macro-carbs { background-color: #fb7185; }
+        
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #f472b6;
+            box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.2), 0 0 15px rgba(244, 114, 182, 0.3);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .neon-pink-shadow {
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.25), 0 4px 6px -1px rgba(244, 114, 182, 0.1);
+        }
+    
+html {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+}
+
+input, select, button {
+    -webkit-appearance: none;
+    appearance: none;
+    font-size: 16px;
+}
+
+button, label, input, select {
+    touch-action: manipulation;
+}
+
+@supports (-webkit-touch-callout: none) {
+    .max-w-md {
+        max-width: 100% !important;
+    }
+}
+
+</style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <div class="max-w-md mx-auto w-full p-4 flex-grow flex flex-col">
+        <div class="flex flex-col items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 text-center">Калькулятор КБЖУ</h1>
+            <p class="text-sm text-pink-600 mt-1 text-center font-medium">Точный расчет по формуле Миффлина-Сан Жеора</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm p-6 mb-6 border border-pink-100">
+            <div class="space-y-5">
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Пол</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="gender" value="male" class="peer sr-only" checked>
+                            <div class="text-center py-3 rounded-2xl border-2 border-pink-100 peer-checked:border-pink-500 peer-checked:bg-pink-50 peer-checked:text-pink-700 peer-checked:shadow-[0_0_15px_rgba(244,114,182,0.3)] font-semibold transition-all">
+                                Мужской
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="gender" value="female" class="peer sr-only">
+                            <div class="text-center py-3 rounded-2xl border-2 border-pink-100 peer-checked:border-pink-500 peer-checked:bg-pink-50 peer-checked:text-pink-700 peer-checked:shadow-[0_0_15px_rgba(244,114,182,0.3)] font-semibold transition-all">
+                                Женский
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Возраст (лет)</label>
+                        <input type="number" id="inputAge" required min="10" max="100" placeholder="25" class="input-field w-full px-4 py-3 rounded-2xl border border-pink-200 text-lg bg-pink-50/50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Вес (кг)</label>
+                        <input type="number" id="inputWeight" required min="30" max="300" step="0.1" placeholder="70" class="input-field w-full px-4 py-3 rounded-2xl border border-pink-200 text-lg bg-pink-50/50">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Рост (см)</label>
+                    <input type="number" id="inputHeight" required min="100" max="250" placeholder="175" class="input-field w-full px-4 py-3 rounded-2xl border border-pink-200 text-lg bg-pink-50/50">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Уровень физической активности</label>
+                    <select id="inputActivity" class="input-field w-full px-4 py-3 rounded-2xl border border-pink-200 text-lg bg-pink-50/50 cursor-pointer">
+                        <option value="1.2">Минимальная (сидячий образ жизни, без спорта)</option>
+                        <option value="1.375">Низкая (легкие упражнения 1-3 раза в неделю)</option>
+                        <option value="1.55" selected>Средняя (умеренные тренировки 3-5 раз в неделю)</option>
+                        <option value="1.725">Высокая (интенсивные тренировки 6-7 раз в неделю)</option>
+                        <option value="1.9">Экстремальная (тяжелый физический труд или 2 тренировки в день)</option>
+                    </select>
+                </div>
+
+                <button type="button" id="calculateBtn" onclick="calculateMacros()" class="w-full gradient-bg text-white font-bold py-4 rounded-2xl shadow-lg shadow-pink-200 active:scale-[0.98] transition-all text-lg mt-2 relative overflow-hidden hover:shadow-[0_0_25px_rgba(236,72,153,0.4)]">
+                    Рассчитать норму
+                </button>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="hidden bg-white rounded-3xl shadow-lg shadow-pink-100/50 p-6 border border-pink-100 fade-in mb-6">
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-pink-100">
+                <h2 class="text-xl font-bold text-gray-900">Результаты расчета</h2>
+                <span class="bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1.5 rounded-full">Формула Миффлина-Сан Жеора</span>
+            </div>
+            
+            <div class="bg-pink-50/50 rounded-2xl p-4 mb-5 border border-pink-100">
+                <p class="text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2">Ваши параметры</p>
+                <p class="text-sm text-gray-800 font-medium leading-relaxed" id="userParams"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-pink-50 rounded-2xl p-4 border border-pink-100 text-center neon-pink-shadow">
+                    <p class="text-xs text-pink-600 font-semibold mb-1">Базовый обмен (BMR)</p>
+                    <p class="text-2xl font-bold text-pink-800" id="resultBMR">0</p>
+                    <p class="text-xs text-pink-500 mt-1">ккал в покое</p>
+                </div>
+                <div class="bg-rose-50 rounded-2xl p-4 border border-rose-100 text-center shadow-[0_0_20px_rgba(251,113,133,0.2)]">
+                    <p class="text-xs text-rose-600 font-semibold mb-1">С активностью (TDEE)</p>
+                    <p class="text-2xl font-bold text-rose-800" id="resultTDEE">0</p>
+                    <p class="text-xs text-rose-500 mt-1">ккал в день</p>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <div class="flex justify-between text-sm font-semibold text-gray-700 mb-2">
+                    <span>Распределение макронутриентов</span>
+                    <span id="totalCaloriesDisplay" class="text-pink-600">0 ккал</span>
+                </div>
+                <div class="macro-bar mb-4">
+                    <div class="macro-protein" style="width: 30%" title="Белки 30%"></div>
+                    <div class="macro-fat" style="width: 30%" title="Жиры 30%"></div>
+                    <div class="macro-carbs" style="width: 40%" title="Углеводы 40%"></div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-pink-50 rounded-2xl border border-pink-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-pink-400 shadow-sm"></div>
+                        <div>
+                            <span class="font-bold text-gray-800 block">Белки</span>
+                            <span class="text-xs text-pink-600">4 ккал/г</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-pink-700 text-xl"><span id="resultProtein">0</span> г</div>
+                        <div class="text-xs text-pink-600 font-semibold">30%</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-purple-50 rounded-2xl border border-purple-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-purple-400 shadow-sm"></div>
+                        <div>
+                            <span class="font-bold text-gray-800 block">Жиры</span>
+                            <span class="text-xs text-purple-600">9 ккал/г</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-purple-700 text-xl"><span id="resultFat">0</span> г</div>
+                        <div class="text-xs text-purple-600 font-semibold">30%</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-rose-50 rounded-2xl border border-rose-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 rounded-full bg-rose-400 shadow-sm"></div>
+                        <div>
+                            <span class="font-bold text-gray-800 block">Углеводы</span>
+                            <span class="text-xs text-rose-600">4 ккал/г</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-rose-700 text-xl"><span id="resultCarbs">0</span> г</div>
+                        <div class="text-xs text-rose-600 font-semibold">40%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-pink-50/30 rounded-2xl text-sm text-gray-600 leading-relaxed border border-pink-100">
+                <p class="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                    Как использовать эти данные:
+                </p>
+                <ul class="space-y-2 list-disc list-inside marker:text-pink-400">
+                    <li><span class="font-semibold text-gray-800">Поддержание веса:</span> <span id="maintainCal" class="text-pink-600 font-bold">0</span> ккал.</li>
+                    <li><span class="font-semibold text-gray-800">Похудение (дефицит 15%):</span> <span id="loseCal" class="text-pink-600 font-bold">0</span> ккал.</li>
+                    <li><span class="font-semibold text-gray-800">Набор массы (профицит 15%):</span> <span id="gainCal" class="text-pink-600 font-bold">0</span> ккал.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center text-xs text-pink-400 pb-6">
+            Приложение работает полностью офлайн
+        </div>
+    </div>
+
+    <script>
+        function triggerConfetti() {
+            const colors = ['#f472b6', '#f9a8d4', '#c084fc', '#fb7185', '#fda4af', '#e879f9'];
+            const button = document.getElementById('calculateBtn');
+            const rect = button.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 45; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                particle.style.width = (Math.random() * 6 + 3) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.borderRadius = '50%';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '9999';
+                particle.style.boxShadow = `0 0 6px ${particle.style.backgroundColor}`;
+                document.body.appendChild(particle);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 120 + 40;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity + 80; 
+
+                if (!particle.animate) { 
+                    setTimeout(() => particle.remove(), 1200);
+                    continue;
+                }
+                const animation = particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 1000 + 800,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    fill: 'forwards'
+                });
+
+                animation.onfinish = () => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                };
+            }
+        }
+
+        function calculateMacros() {
+            try {
+                const ageInput = document.getElementById('inputAge');
+                const weightInput = document.getElementById('inputWeight');
+                const heightInput = document.getElementById('inputHeight');
+                
+                const calcAge = parseFloat(ageInput.value);
+                const calcWeight = parseFloat(weightInput.value);
+                const calcHeight = parseFloat(heightInput.value);
+                
+                const genderRadio = document.querySelector('input[name="gender"]:checked');
+                const calcGender = genderRadio ? genderRadio.value : 'male';
+                
+                const activitySelect = document.getElementById('inputActivity');
+                const calcActivity = parseFloat(activitySelect.value);
+                const activityText = activitySelect.options[activitySelect.selectedIndex].text;
+
+                if (isNaN(calcAge) || isNaN(calcWeight) || isNaN(calcHeight)) {
+                    alert('Пожалуйста, заполните все числовые поля корректно (возраст, вес, рост).');
+                    return;
+                }
+
+                let bmr;
+                if (calcGender === 'male') {
+                    bmr = (10 * calcWeight) + (6.25 * calcHeight) - (5 * calcAge) + 5;
+                } else {
+                    bmr = (10 * calcWeight) + (6.25 * calcHeight) - (5 * calcAge) - 161;
+                }
+
+                const tdee = Math.round(bmr * calcActivity);
+                const bmrRounded = Math.round(bmr);
+                
+                const proteinGrams = Math.round((tdee * 0.30) / 4);
+                const fatGrams = Math.round((tdee * 0.30) / 9);
+                const carbsGrams = Math.round((tdee * 0.40) / 4);
+
+                const genderText = calcGender === 'male' ? 'Мужской' : 'Женский';
+                
+                const setText = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                };
+
+                setText('userParams', `${genderText} пол, ${calcAge} лет, ${calcWeight} кг, ${calcHeight} см. ${activityText}.`);
+                setText('resultBMR', bmrRounded);
+                setText('resultTDEE', tdee);
+                setText('totalCaloriesDisplay', `${tdee} ккал`);
+                setText('resultProtein', proteinGrams);
+                setText('resultFat', fatGrams);
+                setText('resultCarbs', carbsGrams);
+                setText('maintainCal', tdee);
+                setText('loseCal', Math.round(tdee * 0.85));
+                setText('gainCal', Math.round(tdee * 1.15));
+
+                const resultsSection = document.getElementById('resultsSection');
+                if (resultsSection) {
+                    resultsSection.classList.remove('hidden');
+                    
+                    triggerConfetti();
+
+                    setTimeout(() => {
+                        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Ошибка расчета:', error);
+                alert('Произошла ошибка при расчете. Проверьте введенные данные.');
+            }
+        }
+    </script>
+</body>
+</html>
